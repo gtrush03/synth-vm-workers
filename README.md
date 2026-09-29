@@ -1,5 +1,9 @@
 # SYNTH: talk to anyone, your Synths do the follow-through
 
+[![Watch the 2:37 demo film](docs/demo-poster.jpg)](https://live.trusynth.com/film.mp4)
+
+**[▶ Watch the 2:37 demo film](https://live.trusynth.com/film.mp4)**
+
 You meet someone and say "I'll send you the code tonight". Then the week happens and the follow-up never goes out. Or it goes out late, generic, and wrong about a detail.
 
 SYNTH is a team of AI workers ("Synths"), each on its own computer, that turn a conversation into a checked, approved follow-up. They research the company, write the email, argue about it, bring in a specialist when the content calls for one, and ask the other company's agent to confirm what was agreed. **Nothing is sent until you tap Approve on your phone.**
