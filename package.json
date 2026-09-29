@@ -1,0 +1,17 @@
+{
+  "name": "synth-vm-workers",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@band-ai/rest-client": "^0.0.149",
+    "@band-ai/sdk": "^0.4.7",
+    "playwright-core": "^1.63.0"
+  }
+}

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TRU Synth · SYNTH Deal Room</title>
+<link rel="stylesheet" href="/record.css">
+</head>
+<body>
+<main id="deck">
+  <section class="scene s-problem" data-say="I'm George, TRU Synth. The follow-ups, the inbox, the 'just circling back'. That's not your job, but it eats your evenings." data-time="15 s">
+    <div class="wrap">
+      <h1>Most of your day<br>isn't your job.</h1>
+      <p class="sub">Follow-ups · inbox · <span class="q">“just circling back”</span></p>
+    </div>
+  </section>
+
+  <section class="scene s-film" data-say="Say nothing: the film carries the story, the sponsors and the diagram." data-time="~2:30">
+    <video id="film" playsinline preload="auto"></video>
+    <div class="filmwait" id="filmwait">The film is loading…</div>
+  </section>
+
+  <section class="scene s-live" data-say="“This is live, right now.” Hold the phone to the camera, tap Yes on the Social card, and the wall shows the Synth's browser posting to @trusynth." data-time="40 s">
+    <iframe id="wall" title="Live wall" loading="eager"></iframe>
+    <div class="shield" aria-hidden="true"></div>
+    <div class="pill"><i></i>LIVE · right now</div>
+  </section>
+
+  <section class="scene s-results" data-say="“Real inbox, real post, a real computer in San Jose that deletes itself tonight.”" data-time="15 s">
+    <div class="wrap wide">
+      <div class="kick">What just happened</div>
+      <div class="cards">
+        <div class="card" id="c-email"></div>
+        <div class="card" id="c-x"></div>
+        <div class="card" id="c-vm"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene s-stack" data-say="“Without Band there's no room, so there's no Chief veto. Without Vultr there's no separate computer per Synth. Crusoe runs every model; Neo4j is why we can explain every claim; OpenRouter is the second opinion; Resend delivers.”" data-time="25 s">
+    <iframe id="stackmap" title="The stack" hidden></iframe>
+    <div class="shield" aria-hidden="true"></div>
+    <div class="wrap wide" id="strip">
+      <div class="kick">The stack · impossible without each one</div>
+      <div class="rows" id="rows"></div>
+    </div>
+  </section>
+
+  <section class="scene s-code" data-say="“It's all open: synth-vm-workers on GitHub. You say yes last.”" data-time="10 s">
+    <div class="wrap wide">
+      <div class="kick">It's all open</div>
+      <div class="links">
+        <div class="lk"><div class="qr" id="qr-gh"></div><div><div class="big">github.com/gtrush03/<br>synth-vm-workers</div><div class="cap">The code</div></div></div>
+        <div class="lk"><div class="qr" id="qr-live"></div><div><div class="big">live.trusynth.com</div><div class="cap">Watch every Synth work, live</div></div></div>
+      </div>
+      <div class="close">You say yes last.</div>
+    </div>
+  </section>
+</main>
+
+<aside id="notes" hidden>
+  <div class="nh"><b id="n-scene"></b><span id="n-time"></span></div>
+  <div id="n-say"></div>
+  <div class="chips"><span id="n-film">film: checking…</span><span id="n-res">results: checking…</span><span id="n-stack"></span></div>
+  <div class="keys">→ / space / click: next · ←: back · n: notes · f: full screen</div>
+</aside>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="/record.js"></script>
+</body>
+</html>

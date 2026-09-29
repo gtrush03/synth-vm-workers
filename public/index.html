@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SYNTH: VM Workers</title>
+<style>
+:root{--bg:#000;--panel:#0b0b0b;--line:#1f1f1f;--text:#ededed;--dim:#8b8b8b;--mute:#555;--gold:#ecd3a0;--gold2:#b9a27a;--red:#ff5a5f;--green:#7fd6a4}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif}
+header{display:flex;align-items:center;gap:18px;padding:16px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.2px}h1 b{color:var(--gold);font-weight:650}
+.tag{color:var(--dim);font-size:12.5px}
+.badge{font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--dim);text-transform:uppercase;letter-spacing:.8px}
+.badge.live{border-color:var(--gold2);color:var(--gold)}
+form{margin-left:auto;display:flex;gap:8px}
+input{background:#070707;border:1px solid #2a2a2a;color:var(--text);border-radius:10px;padding:9px 12px;font:inherit;width:170px}
+button{font:inherit;border-radius:10px;padding:9px 14px;border:1px solid var(--gold2);background:var(--gold);color:#111;font-weight:600;cursor:pointer}
+button.ghost{background:transparent;color:var(--text);border-color:#333}
+button:disabled{opacity:.45;cursor:default}
+main{display:grid;grid-template-columns:330px 1fr 360px;gap:16px;padding:16px 22px;height:calc(100vh - 70px)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:16px;min-height:0;display:flex;flex-direction:column}
+section>h2{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:600;display:flex;justify-content:space-between}
+.scroll{overflow:auto;padding:12px;flex:1}
+.tile{border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:10px;background:#050505;transition:border-color .3s}
+.tile.working{border-color:var(--gold2)}.tile.vetoed{border-color:var(--red)}.tile.off{opacity:.45}
+.tile.out{opacity:.55;border-style:dashed}
+.tile .top{display:flex;align-items:center;gap:8px}.tile .nm{font-weight:650}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mute)}
+.dot.joined,.dot.idle,.dot["handed off"]{background:var(--green)}.dot.working{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.dot.waiting{background:var(--gold2)}.dot.vetoed,.dot.blocked{background:var(--red)}.dot.passed{background:var(--gold)}.dot.booting{background:#666}
+.st{margin-left:auto;font-size:11.5px;color:var(--dim)}
+.mono{font:11.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dim)}
+.model{color:var(--gold);font-size:11.5px}
+.files{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}.files span{font:10.5px ui-monospace,Menlo,monospace;border:1px solid #242424;border-radius:6px;padding:1px 6px;color:#aaa}
+.room{font-size:10.5px;border-radius:6px;padding:1px 6px;border:1px solid #2a2a2a;color:var(--dim)}.room.in{color:var(--gold);border-color:var(--gold2)}
+.tl{display:flex;flex-direction:column;gap:8px}
+.ln{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid transparent;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(4px)}}
+.ln .who{font-weight:650;font-size:12.5px;color:var(--gold)}.ln .who.Desk{color:#ddd}
+.ln .tx{white-space:pre-wrap;word-break:break-word}
+.ln.message{background:#0a0a0a;border-color:#1c1c1c}
+.ln.veto{border-color:var(--red);background:rgba(255,90,95,.07)}.ln.veto .who{color:var(--red)}
+.ln.pass{border-color:var(--gold2);background:rgba(236,211,160,.06)}
+.ln.llm .tx,.ln.event .tx,.ln.tool_call .tx,.ln.tool_result .tx,.ln.thought .tx{font:11.5px ui-monospace,Menlo,monospace;color:var(--dim)}
+.ln.llm .who,.ln.event .who,.ln.tool_call .who,.ln.tool_result .who,.ln.thought .who{color:var(--mute);font-weight:500}
+.ln.system .tx,.ln.gate .tx{color:#cfcfcf;font-style:italic}
+.vb{grid-column:1/-1;border:2px solid var(--red);border-radius:12px;padding:12px 14px;background:rgba(255,90,95,.1)}
+.vb .h{color:var(--red);font-weight:800;letter-spacing:1.5px;font-size:15px;display:flex;justify-content:space-between}
+.vb .i{margin-top:8px;font-size:14.5px}.vb del{color:#ffb3b5;text-decoration-thickness:2px}.vb .n{color:var(--dim);font-size:12.5px;margin-top:2px}
+.vb .back{margin-top:10px;color:var(--red);font-size:12.5px;font-weight:600}
+.pb{grid-column:1/-1;border:2px solid var(--gold);border-radius:12px;padding:12px 14px;background:rgba(236,211,160,.08)}
+.pb .h{color:var(--gold);font-weight:800;letter-spacing:1.5px;font-size:15px}
+.ts{font-size:10.5px;color:var(--mute);display:block}
+.mention{color:var(--gold)}
+.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px}
+.meter div{border:1px solid var(--line);border-radius:10px;padding:8px 10px}.meter b{display:block;font-size:18px;color:var(--gold);font-weight:600}
+.meter small{color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.8px}
+.last{padding:0 12px 12px;color:var(--dim);font-size:12px}
+.card{margin:12px;border:1px solid var(--gold2);border-radius:18px;padding:16px;background:linear-gradient(180deg,#0f0d09,#070707)}
+.card .k{font-size:11px;color:var(--gold);letter-spacing:1.2px;text-transform:uppercase}
+.card h3{margin:8px 0 6px;font-size:16px}.card p{white-space:pre-wrap;margin:0 0 12px;color:#ddd}
+.card .row{display:flex;gap:10px}.card .row button{flex:1;padding:13px}
+.empty{color:var(--mute);padding:18px;text-align:center;font-size:13px}
+.done a{color:var(--gold)}
+@media (max-width:1100px){main{grid-template-columns:1fr;height:auto}section{max-height:none}.scroll{max-height:60vh}#cardSec{order:-1}input{width:150px}}
+body.cardonly header form,body.cardonly #tilesSec,body.cardonly #roomSec{display:none}
+body.cardonly main{grid-template-columns:1fr;max-width:520px;margin:0 auto;height:auto}
+</style>
+</head>
+<body>
+<header>
+  <h1><b>SYNTH</b>: VM Workers</h1>
+  <span class="tag">AI workers, each with its own computer · coordinated in a Band room · thinking on Crusoe · nothing leaves without your yes</span>
+  <span class="badge" id="mode">…</span>
+  <form id="go"><input id="co" placeholder="Company" value="Vultr"><input id="em" type="email" placeholder="Their email (optional)"><button id="run">Run</button></form>
+</header>
+<main>
+  <section id="tilesSec"><h2><span>Computers</span><span id="alive"></span></h2><div class="scroll" id="tiles"></div></section>
+  <section id="roomSec"><h2><span>Band room</span><span id="roomid"></span></h2><div class="scroll"><div class="tl" id="tl"><div class="empty">Give the workers a company. Desk opens a room and @mentions Scout.</div></div></div></section>
+  <section id="cardSec">
+    <h2><span>Crusoe inference</span><span id="prov"></span></h2>
+    <div class="meter"><div><small>calls</small><b id="m-calls">0</b></div><div><small>tokens</small><b id="m-tok">0</b></div><div><small>avg ms</small><b id="m-ms">–</b></div><div><small>run s</small><b id="m-el">–</b></div></div>
+    <div class="last" id="m-last">no calls yet</div>
+    <h2 style="border-top:1px solid var(--line)"><span>George's phone</span><span></span></h2>
+    <div class="scroll" id="card"><div class="empty">Nothing waiting. Chief has to pass a draft first.</div></div>
+  </section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const K = new URLSearchParams(location.search).get("k") || "";
+if (location.pathname === "/card") document.body.classList.add("cardonly");
+if (!K) $("#go").style.display = "none";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CORE = ["Scout","Echo","Chief"];
+const ROLE = {Scout:"research · web",Echo:"writes the email",Chief:"critic · can BLOCK",FactCheck:"checker · recruitable",PartnerCheck:"checker from another org · recruitable",Pricing:"pricing specialist · recruitable",Tech:"tech specialist · recruitable",Legal:"legal specialist · recruitable",Scheduler:"finds meeting slots · recruitable"};
+let ORDER = CORE;
+let S = {tiles:{}, meter:{}, run:null, mode:""}, started = 0;
+
+function tiles() {
+  ORDER = [...CORE, ...Object.keys(S.tiles).filter(n => !CORE.includes(n) && n !== "Desk")];
+  const alive = ORDER.filter(n => S.tiles[n] && S.tiles[n].status !== "off").length;
+  $("#alive").textContent = `${alive}/${ORDER.length} up`;
+  $("#tiles").innerHTML = ORDER.map(n => {
+    const t = S.tiles[n] || {name:n,status:"off"}; const id = t.identity || {};
+    const where = id.vm ? `VM ${esc(id.vm)} · ${esc(id.region)} · ${esc(id.host)}` : `pid ${esc(id.pid ?? "–")} · ${esc(id.host ?? "–")}`;
+    return `<div class="tile ${esc(t.status)} ${t.inRoom ? "" : "out"}">
+      <div class="top"><span class="dot ${esc(t.status)}"></span><span class="nm">${n}</span><span class="room ${t.inRoom?"in":""}">${t.inRoom ? (t.recruitedAt != null ? `in room · recruited +${t.recruitedAt}s` : "in room") : (CORE.includes(n) ? "not in room" : "standby · not in room")}</span><span class="st">${esc(t.status)}</span></div>
+      <div class="model">${esc(t.model || "")}</div>
+      <div class="mono">${ROLE[n] || ""}${t.org && t.org !== "TRU Synth" ? " · " + esc(t.org) : ""}${t.detail ? " · " + esc(t.detail) : ""}</div>
+      <div class="mono">${where}${t.rss ? ` · ${t.rss} MB` : ""}</div>
+      <div class="mono">disk ${esc(id.workspace ?? "–")} · ${esc(id.room ?? "")}${id.agentId ? " id " + esc(id.agentId) : ""}</div>
+      <div class="files">${(t.files||[]).map(f => `<span>${esc(f)}</span>`).join("")}</div></div>`;
+  }).join("");
+}
+function meter() {
+  const m = S.meter || {};
+  $("#m-calls").textContent = m.calls || 0; $("#m-tok").textContent = (m.tokens || 0).toLocaleString();
+  $("#m-ms").textContent = m.calls ? Math.round(m.ms / m.calls) : "–";
+  $("#prov").textContent = Object.entries(m.byProvider || {}).map(([k,v]) => `${k} ${v}`).join(" · ");
+  if (m.last) $("#m-last").innerHTML = `last: <b style="color:var(--gold)">${esc(m.last.worker)}</b> · ${esc(m.last.model)} · ${m.last.ms} ms · ${m.last.tokens} tok`;
+}
+function ln(l) {
+  const tl = $("#tl"); if (tl.querySelector(".empty")) tl.innerHTML = "";
+  const d = document.createElement("div");
+  d.className = `ln ${l.kind} ${l.tone || ""}`;
+  const t = started ? `+${((l.at - started)/1000).toFixed(1)}s` : "";
+  const text = esc(l.text).replace(/@(\w+)/g, '<span class="mention">@$1</span>').replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  d.innerHTML = `<div class="who ${esc(l.from)}">${esc(l.from)}<span class="ts">${t}</span></div><div class="tx">${text}</div>`;
+  if (l.tone === "veto" && l.issues?.length) {
+    const v = (l.text.match(/v(\d+)/) || [])[1];
+    d.innerHTML = `<div class="vb"><div class="h"><span>✗ CHIEF VETO · v${v}</span><span class="ts">${t}</span></div>${l.issues.map(i =>
+      `<div class="i"><del>${esc(i.claim)}</del><div class="n">${esc(i.note || "no source in the room")}</div></div>`).join("")}
+      <div class="back">↩ sent back to Echo · nothing ships</div></div>`;
+  } else if (l.tone === "pass" && l.from === "Chief") {
+    d.innerHTML = `<div class="pb"><div class="h">✓ CHIEF PASS <span class="ts" style="display:inline">${t}</span></div><div class="tx">${text}</div></div>`;
+  }
+  tl.appendChild(d); d.scrollIntoView({block:"end", behavior:"smooth"});
+}
+function card(c) {
+  if (!c) return;
+  const n = (c.checks || []).length, ok = (c.checks || []).filter(x => x.supported).length;
+  $("#card").innerHTML = `<div class="card"><div class="k">Chief passed v${c.version} · FactCheck ${ok}/${n} claims sourced</div>
+    <h3>${esc(c.draft.subject)}</h3><p>${esc(c.draft.body)}</p>
+    <div class="mono" style="margin-bottom:6px">${c.to ? `To: <b style="color:var(--text)">${esc(c.to)}</b> · ` : ""}from George Trushevskiy · TRU Synth</div>
+    <div class="mono" style="margin-bottom:12px">Sources: ${(c.sources||[]).filter(s => s.id).slice(0,4).map(s => `<a style="color:var(--gold2)" target="_blank" href="${esc(s.url)}">${esc(new URL(s.url).hostname.replace("www.",""))}</a>`).join(" · ")}</div>
+    <div class="row"><button id="yes">${c.to ? "Approve & send" : "Approve"}</button><button class="ghost" id="no">Not this one</button></div></div>`;
+  const send = async yes => {
+    $("#yes").disabled = $("#no").disabled = true;
+    const r = await fetch("/approve", {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({runId:c.runId, yes, k:K})});
+    const j = await r.json().catch(() => ({}));
+    const msg = !yes ? "Nothing sent." : j.to ? (j.sent?.ok ? `Email sent to ${esc(j.to)}.` : `Approved, but NOT sent: ${esc(j.sent?.error || "unknown error")}`) : `Published: <a href="${j.shipped}" target="_blank">${location.origin}${j.shipped}</a>`;
+    $("#card").innerHTML = `<div class="card done"><div class="k">${yes ? (j.to && !j.sent?.ok ? "Send failed" : "Approved") : "Declined"}</div><p>${msg}</p></div>`;
+  };
+  if (K) { $("#yes").onclick = () => send(true); $("#no").onclick = () => send(false); }
+  else $("#card .row").innerHTML = `<div class="mono">Only George can approve (his phone has the key).</div>`;
+}
+function el() { if (S.run && started) { const end = S.run.ended || Date.now(); $("#m-el").textContent = ((end - started)/1000).toFixed(0); } }
+setInterval(el, 500);
+
+const es = new EventSource("/events");
+es.addEventListener("hello", e => {
+  S = JSON.parse(e.data); $("#mode").textContent = S.mode === "live" ? "live · Band + Crusoe" : "mock room";
+  $("#mode").className = "badge " + (S.mode === "live" ? "live" : "");
+  tiles(); meter();
+  if (S.run) { started = S.run.started; $("#roomid").textContent = S.run.roomId.slice(0,13); $("#tl").innerHTML = ""; S.run.lines.forEach(ln); if (S.run.final && S.run.status === "awaiting approval") card({runId:S.run.id, ...S.run.final}); }
+});
+es.addEventListener("tile", e => { const t = JSON.parse(e.data); S.tiles[t.name] = t; tiles(); });
+es.addEventListener("meter", e => { S.meter = JSON.parse(e.data); meter(); });
+es.addEventListener("line", e => ln(JSON.parse(e.data)));
+es.addEventListener("card", e => card(JSON.parse(e.data)));
+es.addEventListener("run", e => {
+  const r = JSON.parse(e.data);
+  if (!S.run || S.run.id !== r.id) { $("#tl").innerHTML = ""; $("#card").innerHTML = '<div class="empty">Nothing waiting. Chief has to pass a draft first.</div>'; S.meter = {calls:0,tokens:0,ms:0,byProvider:{}}; meter(); }
+  S.run = r; started = r.started; $("#roomid").textContent = r.roomId.slice(0,13); $("#run").disabled = r.status === "running";
+});
+$("#go").onsubmit = async e => {
+  e.preventDefault(); $("#run").disabled = true;
+  const r = await fetch("/run", {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({company: $("#co").value, email: $("#em").value, k: K})});
+  if (!r.ok) { $("#run").disabled = false; alert((await r.json().catch(()=>({}))).error || r.status); }
+};
+</script>
+</body>
+</html>

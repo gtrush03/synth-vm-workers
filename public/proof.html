@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Proof · TRU Synth</title>
+<style>
+:root{--bg:#000;--ink:#f4f2ee;--dim:#8e8e93;--faint:#3a3a3c;--acc:#ecd3a0;--red:#ff4d4f;--line:#2c2c2e;--card:#0b0b0b}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+a{color:var(--acc)}
+.brand{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);display:flex;justify-content:space-between;gap:12px}
+.brand b{color:var(--acc);font-weight:700}
+h1{font-size:30px;line-height:1.1;letter-spacing:-.02em;margin:14px 0 6px}
+.task{font-size:19px;line-height:1.35;color:#e5e5ea}
+.sample{display:inline-block;margin-top:12px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--dim);color:var(--dim);border-radius:6px;padding:3px 8px}
+.status{margin:20px 0 8px;border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--card)}
+.status.done{border-color:rgba(236,211,160,.6)}.status.failed{border-color:var(--red)}
+.big{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;letter-spacing:.02em}
+.status.done .big{color:var(--acc)}.status.failed .big{color:var(--red)}.status.running .big{color:var(--ink)}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc);animation:p 1.2s ease-in-out infinite}@keyframes p{50%{opacity:.3}}
+.err{color:#ff8a8c;margin-top:8px;font-size:15px}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin-top:12px;font-size:15px}
+dt{color:var(--dim)}dd{color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.live{display:block;margin-top:14px;text-align:center;background:var(--acc);color:#000;font-weight:750;padding:12px;border-radius:12px;text-decoration:none}
+h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);margin:28px 0 10px}
+.result{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--card)}
+.result h3{font-size:18px;margin-bottom:8px}
+.result ul{padding-left:18px}.result li{margin:4px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+th{color:var(--dim);font-weight:500;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+.scroll{overflow-x:auto}
+.nums{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.num{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--card)}
+.num .v{font-size:26px;font-weight:750;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.num .v small{font-size:14px;color:var(--dim);font-weight:500;margin-left:4px}
+.num .l{color:#d1d1d6;font-size:14px;margin-top:2px}
+.num .f{color:var(--dim);font-size:12px;margin-top:6px}.num .f.none{color:#ff8a8c}
+.ids div{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.ids span{color:var(--dim);min-width:8em}.ids code{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);overflow-wrap:anywhere}
+.steps{border-left:2px solid var(--faint);margin-left:6px}
+.step{position:relative;padding:0 0 16px 18px}
+.step::before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--acc)}
+.step.shot::before{background:#000;border:2px solid var(--acc)}
+.step time{display:block;color:var(--dim);font-size:13px;font-variant-numeric:tabular-nums}
+.step .t{font-size:15px;color:#e5e5ea}
+.step .u{font-size:13px;color:var(--dim);overflow-wrap:anywhere}
+.step img{display:block;width:100%;margin-top:8px;border-radius:10px;border:1px solid var(--line);background:#050505;cursor:zoom-in}
+.src{padding:10px 0;border-bottom:1px solid var(--line)}
+.src a{font-weight:600;text-decoration:none}.src .d{color:var(--dim);font-size:13px}.src .n{color:#d1d1d6;font-size:14px;margin-top:2px}
+.other{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:14px}
+.other b{color:var(--acc);font-size:12px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px}
+.foot{margin-top:32px;color:var(--dim);font-size:13px;line-height:1.5}
+.empty{padding:60px 0;text-align:center;color:var(--dim)}
+#zoom{position:fixed;inset:0;background:rgba(0,0,0,.94);display:none;place-items:center;z-index:9;cursor:zoom-out;padding:12px}
+#zoom.on{display:grid}#zoom img{max-width:100%;max-height:100%;border-radius:8px}
+</style>
+</head>
+<body>
+<main id="m"><div class="empty">Loading the proof…</div></main>
+<div id="zoom"></div>
+<script src="/proof.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# FICTIONAL rehearsal conversation. "Alex Rivera, Northwind Labs" is an invented contact, not a real person; no real person said these words.
+[0:02] George: So what are you working on at Northwind Labs right now?
+[0:06] Alex: I run developer relations. We just launched managed inference, and the hard part is getting agent builders to try it.
+[0:14] George: We run every AI worker on its own computer, and each one thinks on a different model.
+[0:19] Alex: That's exactly the multi-model story we want to show. Can you send me a short write-up I can share with the team?
+[0:25] George: Yes, I'll send you the code tonight. Could we do a call next week?
+[0:28] Alex: Sure, Tuesday or Wednesday afternoon works for me.
