@@ -1,8 +1,8 @@
 # SYNTH: talk to anyone, your Synths do the follow-through
 
-[![Watch the 2:37 demo film](docs/demo-poster.jpg)](https://live.trusynth.com/film.mp4)
+[![Watch the 2:31 demo film](docs/demo-poster.jpg)](https://live.trusynth.com/film.mp4)
 
-**[▶ Watch the 2:37 demo film](https://live.trusynth.com/film.mp4)**
+**[▶ Watch the 2:31 demo film](https://live.trusynth.com/film.mp4)**
 
 You meet someone and say "I'll send you the code tonight". Then the week happens and the follow-up never goes out. Or it goes out late, generic, and wrong about a detail.
 

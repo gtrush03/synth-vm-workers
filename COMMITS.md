@@ -1,6 +1,6 @@
 # Build log
 
-SYNTH was built during The AI Conference Hack Day 2026 (Pier 48, San Francisco, 29 Sep 2026). This public repo is a snapshot of the working repo at `d650a2d`. Its day-of commit history is listed below (UTC, oldest first).
+SYNTH was built during The AI Conference Hack Day 2026 (Pier 48, San Francisco, 29 Sep 2026). This public repo is a snapshot of the working repo at `ac966e9`. Its day-of commit history is listed below (UTC, oldest first).
 
 ```
 2026-09-29 11:09  911bad8  SYNTH: VM Workers M1: worker processes coordinate only via room (mock hub + Band adapter), Crusoe per-worker models with failover, Scout web research, Chief veto + runtime F
@@ -77,4 +77,5 @@ SYNTH was built during The AI Conference Hack Day 2026 (Pier 48, San Francisco, 
 2026-09-29 14:40  4c5c020  transcript-demo: fictional contact only (Alex Rivera, Northwind Labs)
 2026-09-29 15:04  168914f  scripts/graphshot: 1080p populated /graph still + screencast for the film
 2026-09-29 15:24  d650a2d  README: demo film at the top (poster links to live.trusynth.com/film.mp4)
+2026-09-29 15:42  ac966e9  README: film is 2:31 (the Siren cut now at live.trusynth.com/film.mp4)
 ```
